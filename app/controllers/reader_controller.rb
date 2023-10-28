@@ -7,20 +7,24 @@ class ReaderController < ApplicationController
     if @modelo.save
       render json: {"message": "successfuly created reader", "reader": @modelo.to_json}, status: :created
     else
-      if result.message.blank?
+      if @modelo
         render json: {"message": @modelo.errors.full_messages}, status: :unauthorized
       else
-        render json: {"message": result.message}, status: :unauthorized
+        render json: {"message": "failed to create reader"}, status: :unauthorized
       end 
     end
   end
 
   def destroy
     reader = Reader.find_by(id: params[:id])
-    if reader.destroy
+    if reader && reader.destroy
       render json: reader.to_json, status: :ok
     else
-      render json: {"message": "error while trying to delete reader"}, status: :unauthorized
+      if reader
+        render json: {"message": reader.errors.full_messages}, status: :unauthorized
+      else 
+        render json: {"message": "no reader with index #{params[:id]}"}, status: :not_found
+      end
     end
   end
 
@@ -29,16 +33,24 @@ class ReaderController < ApplicationController
     if reader
       render json: reader.to_json, status: :ok
     else
-      render json: {"message": "unable to find reader"}, status: :not_found
+      if reader
+        render json: {"message": reader.errors.full_messages}, status: :unauthorized
+      else 
+        render json: {"message": "no reader with index #{params[:id]}"}, status: :not_found
+      end
     end
   end
 
   def update
     reader = Reader.find_by(id: params[:id])
-    if reader.update(modelo_params)
+    if reader && reader.update(modelo_params)
       render json: reader.to_json, status: :ok
     else
-      render json: {"message": "error while trying to update reader"}, status: :unauthorized
+      if reader
+        render json: {"message": reader.errors.full_messages}, status: :unauthorized
+      else 
+        render json: {"message": "no reader with index #{params[:id]}"}, status: :not_found
+      end
     end
   end
 
@@ -53,7 +65,11 @@ class ReaderController < ApplicationController
     if reader && reader.authenticate(params[:password])
       render json: {"message": "reader authenticated"}, status: :ok
     else
-      render json: {"message": "wrong reader credentials"}, status: :unauthorized
+      if reader
+        render json: {"message": reader.errors.full_messages}, status: :unauthorized
+      else 
+        render json: {"message": "no reader with index #{params[:id]}"}, status: :not_found
+      end
     end
   end
     

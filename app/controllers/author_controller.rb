@@ -28,12 +28,15 @@ class AuthorController < ApplicationController
 
     def destroy
       author = Author.find_by(id: params[:id])
-      delete_related_object(Book, author)
-      delete_related_object(Newsletter, author)
-      if author.destroy
+
+      if author && author.destroy
         render json: author.to_json, status: :ok
       else
-        render json: {"message": "error while trying to delete author"}, status: :unauthorized
+        if author
+          render json: {"message": author.errors.full_messages}, status: :unauthorized
+        else 
+          render json: {"message": "no author with index #{params[:id]}"}, status: :not_found
+        end
       end
     end
 
@@ -42,16 +45,24 @@ class AuthorController < ApplicationController
       if author
         render json: author.to_json, status: :ok
       else
-        render json: {"message": "unable to find author"}, status: :not_found
+        if author
+          render json: {"message": author.errors.full_messages}, status: :unauthorized
+        else 
+          render json: {"message": "no author with index #{params[:id]}"}, status: :not_found
+        end
       end
     end
 
     def update
       author = Author.find_by(id: params[:id])
-      if author.update(modelo_params)
+      if author && author.update(modelo_params)
         render json: author.to_json, status: :ok
       else
-        render json: {"message": "error while trying to update author"}, status: :unauthorized
+        if author
+          render json: {"message": author.errors.full_messages}, status: :unauthorized
+        else 
+          render json: {"message": "no author with index #{params[:id]}"}, status: :not_found
+        end
       end
     end
 
@@ -64,6 +75,6 @@ class AuthorController < ApplicationController
     private
     
     def modelo_params
-      params.permit(:name, :birth_date, :email, :books, :newsletters)
+      params.permit(:name, :birth_date, :email)
     end
 end

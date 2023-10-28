@@ -15,12 +15,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_27_121627) do
     t.string "name"
     t.string "email"
     t.string "birth_date"
-    t.integer "books_id"
-    t.integer "newsletters_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["books_id"], name: "index_authors_on_books_id"
-    t.index ["newsletters_id"], name: "index_authors_on_newsletters_id"
   end
 
   create_table "books", force: :cascade do |t|
@@ -35,24 +31,20 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_27_121627) do
     t.boolean "active"
     t.string "title"
     t.text "content"
-    t.integer "subscription_id"
     t.integer "author_id", null: false
     t.integer "book_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_newsletters_on_author_id"
     t.index ["book_id"], name: "index_newsletters_on_book_id"
-    t.index ["subscription_id"], name: "index_newsletters_on_subscription_id"
   end
 
   create_table "readers", force: :cascade do |t|
     t.string "email"
     t.string "password"
     t.string "password_digest"
-    t.integer "subscriptions_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["subscriptions_id"], name: "index_readers_on_subscriptions_id"
   end
 
   create_table "subscriptions", force: :cascade do |t|
@@ -64,13 +56,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_27_121627) do
     t.index ["reader_id"], name: "index_subscriptions_on_reader_id"
   end
 
-  add_foreign_key "authors", "books", column: "books_id"
-  add_foreign_key "authors", "newsletters", column: "newsletters_id"
   add_foreign_key "books", "authors", on_delete: :cascade
-  add_foreign_key "newsletters", "authors", on_delete: :cascade
-  add_foreign_key "newsletters", "books", on_delete: :cascade
-  add_foreign_key "newsletters", "subscriptions"
-  add_foreign_key "readers", "subscriptions", column: "subscriptions_id"
+  add_foreign_key "newsletters", "authors"
+  add_foreign_key "newsletters", "books"
   add_foreign_key "subscriptions", "newsletters"
   add_foreign_key "subscriptions", "readers"
 end

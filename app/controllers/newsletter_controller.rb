@@ -8,8 +8,7 @@ class NewsletterController < ApplicationController
         puts result.success?
       
         if result.success? && @modelo.save
-            Author.update(id: @modelo.author.id, newsletters_id: @modelo.id)
-          render json: result.to_json, status: :created
+          render json: @modelo.to_json, status: :created
         else
           if result.message.blank?
             render json: {"message": @modelo.errors.full_messages}, status: :unauthorized
@@ -21,10 +20,14 @@ class NewsletterController < ApplicationController
 
     def destroy
       newsletter = Newsletter.find_by(id: params[:id])
-      if newsletter.destroy
+      if newsletter && newsletter.destroy
         render json: newsletter.to_json, status: :ok
       else
-        render json: {"message": "error while trying to delete newsletter"}, status: :unauthorized
+        if newsletter
+          render json: {"message": newsletter.errors.full_messages}, status: :unauthorized
+        else 
+          render json: {"message": "no newsletter with index #{params[:id]}"}, status: :not_found
+        end
       end
     end
 
@@ -33,16 +36,24 @@ class NewsletterController < ApplicationController
       if newsletter
         render json: newsletter.to_json, status: :ok
       else
-        render json: {"message": "unable to find newsletter"}, status: :not_found
+        if newsletter
+          render json: {"message": newsletter.errors.full_messages}, status: :unauthorized
+        else 
+          render json: {"message": "no newsletter with index #{params[:id]}"}, status: :not_found
+        end
       end
     end
 
     def update
       newsletter = Newsletter.find_by(id: params[:id])
-      if newsletter.update(modelo_params)
+      if newsletter && newsletter.update(modelo_params)
         render json: newsletter.to_json, status: :ok
       else
-        render json: {"message": "error while trying to update newsletter"}, status: :unauthorized
+        if newsletter
+          render json: {"message": newsletter.errors.full_messages}, status: :unauthorized
+        else 
+          render json: {"message": "no newsletter with index #{params[:id]}"}, status: :not_found
+        end
       end
     end
 

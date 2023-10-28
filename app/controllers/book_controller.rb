@@ -4,7 +4,6 @@ class BookController < ApplicationController
         @modelo = Book.new(modelo_params)
       
         if @modelo.save
-          Author.update(id: @modelo.author.id, books_id: @modelo.id)
           render json: {"message": "successfuly created book", "book": @modelo.to_json}, status: :created
         else
           if result.message.blank?
@@ -17,10 +16,14 @@ class BookController < ApplicationController
 
     def destroy
       book = Book.find_by(id: params[:id])
-      if book.destroy
+      if book && book.destroy
         render json: book.to_json, status: :ok
       else
-        render json: {"message": "error while trying to delete book"}, status: :unauthorized
+        if book
+          render json: {"message": book.errors.full_messages}, status: :unauthorized
+        else 
+          render json: {"message": "no book with index #{params[:id]}"}, status: :not_found
+        end
       end
     end
 
@@ -29,16 +32,24 @@ class BookController < ApplicationController
       if book
         render json: book.to_json, status: :ok
       else
-        render json: {"message": "unable to find book"}, status: :not_found
+        if book
+          render json: {"message": book.errors.full_messages}, status: :unauthorized
+        else 
+          render json: {"message": "no book with index #{params[:id]}"}, status: :not_found
+        end
       end
     end
 
     def update
       book = Book.find_by(id: params[:id])
-      if book.update(modelo_params)
+      if book && book.update(modelo_params)
         render json: book.to_json, status: :ok
       else
-        render json: {"message": "error while trying to update book"}, status: :unauthorized
+        if book
+          render json: {"message": book.errors.full_messages}, status: :unauthorized
+        else 
+          render json: {"message": "no book with index #{params[:id]}"}, status: :not_found
+        end
       end
     end
 
