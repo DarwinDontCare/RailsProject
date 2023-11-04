@@ -1,0 +1,8 @@
+:verbose: false
+:concurrency: 5
+:queues:
+  - default
+:development:
+  :url: redis://localhost:6379/0
+:production:
+  :url: redis://your-redis-host:6379/0

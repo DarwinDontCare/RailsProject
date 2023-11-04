@@ -1,0 +1,5 @@
+daily_task:
+  cron: "0 10 * * *"
+  class: "NotificationSender"
+  queue: "default"
+  description: "Executa a tarefa diária às 10:00 da manhã."

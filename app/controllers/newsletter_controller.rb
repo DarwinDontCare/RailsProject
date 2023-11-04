@@ -31,6 +31,10 @@ class NewsletterController < ApplicationController
       end
     end
 
+    def notifyReaders
+      Workers::NotificationSender.perform_async(params[:id])
+    end
+
     def show
       newsletter = Newsletter.find_by(id: params[:id])
       if newsletter

@@ -18,6 +18,10 @@ gem 'byebug'
 
 gem 'rspec-rails', '~> 4.0.0'
 
+gem 'sidekiq'
+
+gem 'sidekiq-scheduler'
+
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", "~> 5.0"
 
